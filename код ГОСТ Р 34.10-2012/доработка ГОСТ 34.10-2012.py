@@ -3,12 +3,16 @@ import hashlib
 from gostcrypto import gosthash
 
 # Хеширование сообщения стрибог
-def hash_message(message, p):
+def hash_message(message, p, hash_type='streebog512'):
     # Кодируем в байты
     msg_bytes = message.encode('utf-8')
 
-    # Стрибог-512
-    hash_obj = gosthash.new('streebog512')
+    # Выбираем тип хеширования
+    if hash_type == 'streebog512':
+        hash_obj = gosthash.new('streebog512')
+    else:
+        hash_obj = gosthash.new('streebog256')
+
     hash_obj.update(msg_bytes)
     hash_bytes = hash_obj.digest()
 
@@ -89,13 +93,13 @@ def id_tc26_gost_3410_12_512_paramSetA():
 
 # Параметры эллиптической кривой (короткие)
 def id_tc26_gost_3410_12_512_paramSetB():
-    p = 0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD97
-    a = 0x00C2173F1513981673AF4892C23035A27CE25E2013BF95AA33B22C656F277E7335
-    b = 0x295F9BAE7428ED9CCC20E7C359A9D41A22FCCD9108E17BF7BA9337A6F8AE9513
-    m = 0x01000000000000000000000000000000003F63377F21ED98D70456BD55B0D8319C
-    q = 0x400000000000000000000000000000000FD8CDDFC87B6635C115AF556C360C67
-    Gx = 0x0091E38443A5E82C0D880923425712B2BB658B9196932E02C78B2582FE742DAA28
-    Gy = 0x32879423AB1A0375895786C4BB46E9565FDE0B5344766740AF268ADB32322E5C
+    p = 3390272539
+    a = 3142283494
+    b = 2595209411
+    m = 3390233545
+    q = 23380921
+    Gx = 2739299112
+    Gy = 2772655963
 
     G = (Gx, Gy)
     return p, a, b, m, q, G
@@ -125,9 +129,9 @@ def generate_russian_text(length=50):
 
 
 # Создание ЭЦП
-def create_signature(message, x, G, a, p, q, hash_P):
+def create_signature(message, x, G, a, p, q, hash_P, hash_type='streebog512'):
     # Хеширование сообщения
-    h = hash_message(message, hash_P)
+    h = hash_message(message, hash_P, hash_type)
     Hm = h % q
 
     if Hm == 0:
@@ -173,9 +177,11 @@ def main():
     if choice == '1':
         # Параметры функции
         p, a, b, m, q, G = id_tc26_gost_3410_12_512_paramSetA()
+        hash_type = 'streebog512'
 
     if choice == '2':
         p, a, b, m, q, G = id_tc26_gost_3410_12_512_paramSetB()
+        hash_type = 'streebog256'
 
     # Ввод модуля для хеширования
     hash_P = p
@@ -199,7 +205,7 @@ def main():
             message = generate_russian_text(50)
 
             # Создание подписи
-            signature, Hm, k = create_signature(message, x, G, a, p, q, hash_P)
+            signature, Hm, k = create_signature(message, x, G, a, p, q, hash_P, hash_type)
             r, s = signature
 
             # Записываем в файл: k и подпись
