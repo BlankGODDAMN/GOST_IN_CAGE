@@ -7,8 +7,8 @@ def hash_message(message, p):
     # Кодируем в байты
     msg_bytes = message.encode('utf-8')
 
-    # Стрибог-256
-    hash_obj = gosthash.new('streebog256')
+    # Стрибог-512
+    hash_obj = gosthash.new('streebog512')
     hash_obj.update(msg_bytes)
     hash_bytes = hash_obj.digest()
 
@@ -87,6 +87,20 @@ def id_tc26_gost_3410_12_512_paramSetA():
     G = (Gx, Gy)
     return p, a, b, m, q, G
 
+# Параметры эллиптической кривой (короткие)
+def id_tc26_gost_3410_12_512_paramSetB():
+    p = 0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD97
+    a = 0x00C2173F1513981673AF4892C23035A27CE25E2013BF95AA33B22C656F277E7335
+    b = 0x295F9BAE7428ED9CCC20E7C359A9D41A22FCCD9108E17BF7BA9337A6F8AE9513
+    m = 0x01000000000000000000000000000000003F63377F21ED98D70456BD55B0D8319C
+    q = 0x400000000000000000000000000000000FD8CDDFC87B6635C115AF556C360C67
+    Gx = 0x0091E38443A5E82C0D880923425712B2BB658B9196932E02C78B2582FE742DAA28
+    Gy = 0x32879423AB1A0375895786C4BB46E9565FDE0B5344766740AF268ADB32322E5C
+
+    G = (Gx, Gy)
+    return p, a, b, m, q, G
+
+
 # Генерация ключей
 def generate_keys(q, G, a, p):
     while True:
@@ -151,9 +165,17 @@ def main():
     print("ЭЦП ГОСТ Р 34.10-2012")
     print("=" * 40)
     print("\nСоздать ЭЦП")
+    print("\nДлина параметров элептической кривой")
+    print("1 - Длинные")
+    print("2 - Короткие")
 
-    # Параметры функции
-    p, a, b, m, q, G = id_tc26_gost_3410_12_512_paramSetA()
+    choice = input("(1-2): ")
+    if choice == '1':
+        # Параметры функции
+        p, a, b, m, q, G = id_tc26_gost_3410_12_512_paramSetA()
+
+    if choice == '2':
+        p, a, b, m, q, G = id_tc26_gost_3410_12_512_paramSetB()
 
     # Ввод модуля для хеширования
     hash_P = p
@@ -170,7 +192,7 @@ def main():
     # Открываем файл для записи
     with open(filename, 'w', encoding='utf-8') as f:
         # Записываем x
-        f.write(f"x = {bin(x) [2:]}\n\n")
+        f.write(f"x = {bin(x)}\n\n")
 
         for i in range(count):
             # Ввод сообщения
@@ -181,8 +203,8 @@ def main():
             r, s = signature
 
             # Записываем в файл: k и подпись
-            f.write(f"k{i + 1} = {bin(k) [2:]}\n")
-            f.write(f"S{i + 1} = ({bin(r) [2:]},\n {bin(s) [2:]})\n\n")
+            f.write(f"k{i + 1} = {bin(k)}\n")
+            f.write(f"S{i + 1} = ({bin(r)},\n {bin(s) [2:]})\n\n")
 
     print(f"\nРезультат записан в файл: {filename} ")
 
