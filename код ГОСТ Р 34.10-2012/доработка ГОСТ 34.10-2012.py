@@ -3,7 +3,7 @@ import hashlib
 from gostcrypto import gosthash
 
 # Хеширование сообщения стрибог
-def hash_message(message, p, hash_type='streebog512'):
+def hash_message(message, q, hash_type='streebog512'):
     # Кодируем в байты
     msg_bytes = message.encode('utf-8')
 
@@ -19,8 +19,8 @@ def hash_message(message, p, hash_type='streebog512'):
     # Преобразуем в число
     hash_int = int.from_bytes(hash_bytes, 'big')
 
-    # Приводим к модулю p
-    h = hash_int % p
+    # Приводим к модулю q
+    h = hash_int % q
     return h
 
 
@@ -131,8 +131,7 @@ def generate_russian_text(length=50):
 # Создание ЭЦП
 def create_signature(message, x, G, a, p, q, hash_P, hash_type='streebog512'):
     # Хеширование сообщения
-    h = hash_message(message, hash_P, hash_type)
-    Hm = h % q
+    Hm = hash_message(message, hash_P, hash_type)
 
     if Hm == 0:
         Hm = 1
