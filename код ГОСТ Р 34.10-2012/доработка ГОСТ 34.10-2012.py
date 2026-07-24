@@ -197,7 +197,11 @@ def main():
     # Открываем файл для записи
     with open(filename, 'w', encoding='utf-8') as f:
         # Записываем x
-        f.write(f"x = {bin(x)}\n\n")
+        f.write(f"x = {x:0{bit_length}b}\n\n")
+
+        # Временные списки для хранения
+        signatures = []
+        k_values = []
 
         for i in range(count):
             # Ввод сообщения
@@ -207,9 +211,17 @@ def main():
             signature, Hm, k = create_signature(message, x, G, a, p, q, hash_P, hash_type)
             r, s = signature
 
-            # Записываем в файл: k и подпись
-            f.write(f"k{i + 1} = {bin(k)}\n")
-            f.write(f"S{i + 1} = ({bin(r)},\n {bin(s) [2:]})\n\n")
+            # Сохраняем k и подпись
+            k_values.append(k)
+            signatures.append((r, s))
+
+            # Записываем в файл k
+            f.write(f"k{i + 1} = {k:0{bit_length}b}\n")
+
+        # Записываем в файл подпись
+        for i, (r, s) in enumerate(signatures, 1):
+            f.write(f"S{i + 1} = ({r:0{bit_length}b},\n {s:0{bit_length}b})\n")
+
 
     print(f"\nРезультат записан в файл: {filename} ")
 
