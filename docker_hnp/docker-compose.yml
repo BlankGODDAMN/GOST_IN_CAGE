@@ -1,0 +1,17 @@
+# Запуск оракула одной командой (из папки docker_hnp):
+#   docker compose up --build
+# Контекст сборки = корень проекта (..), чтобы Dockerfile видел gost.py.
+services:
+  oracle:
+    build:
+      context: ..
+      dockerfile: docker_hnp/Dockerfile
+    image: gost-oracle
+    container_name: gost-oracle
+    environment:
+      GOST_CURVE: "A"          # A = 512-бит (по умолчанию), B = короткая тестовая
+      # ORACLE_STEP_MS: "0.2"  # квант мс/шаг (A=0.2, B=5 по умолчанию)
+    ports:
+      - "31337:31337"
+    stdin_open: true
+    tty: true
